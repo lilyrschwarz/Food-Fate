@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "217270958416",
+    "firebase_url": "https://food-fate.firebaseio.com",
+    "project_id": "food-fate",
+    "storage_bucket": "food-fate.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217270958416:android:8661ed7af5184a00",
+        "android_client_info": {
+          "package_name": "edu.gwu.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217270958416-pq29bf3sfngik05ibdsd26vbpddte3i0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP_22L0-EgO2yxyleWpuhxmYdgECkTBOQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
