@@ -1,4 +1,4 @@
-package edu.gwu.testingapp
+package edu.gwu.myapplication
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.widget.Button
-import edu.gwu.project1.RecipeAdapter
-import edu.gwu.project1.RecipeData
+import edu.gwu.myapplication.RecipeAdapter
+import edu.gwu.myapplication.RecipeData
 
 class RecipesActivity : AppCompatActivity()   {
 

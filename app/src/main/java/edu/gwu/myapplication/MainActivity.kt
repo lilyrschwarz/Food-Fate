@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
+import edu.gwu.myapplication.IngredientsActivity
 import edu.gwu.myapplication.R
 
 
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     // User logged in, advance to the next screen
 
                     //use this for when i actually have an intent
-                   val intent: Intent = Intent(this, InputIngredients::class.java)
+                   val intent: Intent = Intent(this, IngredientsActivity::class.java)
                    startActivity(intent)
                 } else {
                     val exception = task.exception
