@@ -1,4 +1,4 @@
-package edu.gwu.androidtweets.ui.main
+package edu.gwu.myapplication.ui.main
 
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
