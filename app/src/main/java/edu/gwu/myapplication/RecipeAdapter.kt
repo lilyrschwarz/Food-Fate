@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import edu.gwu.testingapp.R
+import edu.gwu.myapplication.R
 
 class RecipeAdapter constructor(private val recipeData: List<RecipeData>) : RecyclerView.Adapter<RecipeAdapter.ViewHolder>() {
     //when alerts activity is launch, on create builds the layout
