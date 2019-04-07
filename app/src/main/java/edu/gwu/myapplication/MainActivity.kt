@@ -90,28 +90,37 @@ class MainActivity : AppCompatActivity() {
             val inputtedUsername: String = username.text.toString().trim()
             val inputtedPassword: String = password.text.toString().trim()
 
-            firebaseAuth.createUserWithEmailAndPassword(
-                inputtedUsername,
-                inputtedPassword
-            ).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // If Sign Up is successful, Firebase automatically logs
-                    // in as that user too (e.g. currentUser is set)
-                    val currentUser: FirebaseUser? = firebaseAuth.currentUser
-                    Toast.makeText(
-                        this,
-                        "Registered as: ${currentUser!!.email}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    val exception = task.exception
-                    Toast.makeText(
-                        this,
-                        "Failed to register: $exception",
-                        Toast.LENGTH_LONG
-                    ).show()
+            val inputtedUsername2: String = username.text.toString().trim()
+            val inputtedPassword2: String = password.text.toString().trim()
+
+            if((inputtedUsername==inputtedUsername2) && (inputtedPassword==inputtedPassword2)){
+                firebaseAuth.createUserWithEmailAndPassword(
+                    inputtedUsername,
+                    inputtedPassword
+                ).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // If Sign Up is successful, Firebase automatically logs
+                        // in as that user too (e.g. currentUser is set)
+                        val currentUser: FirebaseUser? = firebaseAuth.currentUser
+                        Toast.makeText(
+                            this,
+                            "Registered as: ${currentUser!!.email}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        val exception = task.exception
+                        Toast.makeText(
+                            this,
+                            "Failed to register: $exception",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
+
             }
+
+
+
         }
 
         // This is similar to the TextWatcher -- setOnClickListener takes a View.OnClickListener
