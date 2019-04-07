@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Food Fate</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="ingredient">Ingredient</string>
+    <string name="enter_ingredient">Enter Ingredient</string>
+    <string name="find_my_recipe">Find My Recipes</string>
+    <string name="recipe_title">Your Recipes</string>
+    <string name="try_button">Enter New Ingredients</string>
+    <string name="pizza_button">Order Pizza</string>
+    <string name="order_button">Order</string>
+    <string name="login_button">Login</string>
+</resources>
