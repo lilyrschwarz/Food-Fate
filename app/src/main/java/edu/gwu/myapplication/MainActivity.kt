@@ -16,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import edu.gwu.myapplication.IngredientsActivity
 import edu.gwu.myapplication.R
+import android.app.AlertDialog
+
 
 
 
@@ -77,6 +79,15 @@ class MainActivity : AppCompatActivity() {
 
         Log.d("MainActivity", "onCreate called")
 
+        AlertDialog.Builder(this)
+            .setTitle("Welcome")
+            .setMessage("Welcome to Food Fate! If you are a new user, please enter a valid email address " +
+                    "and password and select the 'Sign Up' button. If you already have an existing Food Fate " +
+                    "account, simply enter your credentials and select the 'Log In' button. Happy recipe finding!")
+            .setPositiveButton("Thanks!") { dialog, which ->
+                // User pressed OK
+            }
+            .show()
 
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
@@ -114,6 +125,14 @@ class MainActivity : AppCompatActivity() {
                             "Failed to register: $exception",
                             Toast.LENGTH_LONG
                         ).show()
+                        AlertDialog.Builder(this)
+                            .setTitle("Oops!")
+                            .setMessage("We couldn't match your gmail address & password with an existing google account. " +
+                                    "Please check your information and try again!")
+                            .setPositiveButton("Got It!") { dialog, which ->
+                                // User pressed OK
+                            }
+                            .show()
                     }
                 }
 
@@ -155,6 +174,14 @@ class MainActivity : AppCompatActivity() {
                         "Failed to login: $exception",
                         Toast.LENGTH_LONG
                     ).show()
+                    AlertDialog.Builder(this)
+                        .setTitle("Oops!")
+                        .setMessage("Unfortunately there was an error with your Log In! Please remember to sign up" +
+                                " before attempting to log in or check your spelling!")
+                        .setPositiveButton("Got It!") { dialog, which ->
+                            // User pressed OK
+                        }
+                        .show()
                 }
             }
 
