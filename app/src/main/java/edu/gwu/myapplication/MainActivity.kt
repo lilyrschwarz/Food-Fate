@@ -6,17 +6,15 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import edu.gwu.myapplication.IngredientsActivity
 import edu.gwu.myapplication.R
-
+import android.app.AlertDialog
+import android.widget.*
+import android.content.Context
 
 
 class MainActivity : AppCompatActivity() {
@@ -42,6 +40,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
 
     private lateinit var firebaseAuth: FirebaseAuth
+
+    private lateinit var remember: CheckBox
+
+    private lateinit var checkedBox: CheckBox
+
+    var bool: Boolean = false
+
+
+
+
+
+
 
     /**
      * We're creating an "anonymous class" here (e.g. we're creating a class which implements
@@ -75,8 +85,22 @@ class MainActivity : AppCompatActivity() {
 
         signUp = findViewById(R.id.signUp)
 
+        checkedBox = findViewById(R.id.remember);
+
+
+
+
         Log.d("MainActivity", "onCreate called")
 
+        AlertDialog.Builder(this)
+            .setTitle("Welcome")
+            .setMessage("Welcome to Food Fate! If you are a new user, please enter a valid email address " +
+                    "and password and select the 'Sign Up' button. If you already have an existing Food Fate " +
+                    "account, simply enter your credentials and select the 'Log In' button. Happy recipe finding!")
+            .setPositiveButton("Thanks!") { dialog, which ->
+                // User pressed OK
+            }
+            .show()
 
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
@@ -85,6 +109,21 @@ class MainActivity : AppCompatActivity() {
 
         username.addTextChangedListener(textWatcher)
         password.addTextChangedListener(textWatcher)
+
+
+        //when Check Box enabled, the destination entered is saved
+        checkedBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            Log.d("MainActivity", "Check Box Clicked")
+            getData()
+            if(isChecked){
+                saveData()
+                getData()
+            }
+
+        }
+
+
+
 
         signUp.setOnClickListener {
             val inputtedUsername: String = username.text.toString().trim()
@@ -114,6 +153,14 @@ class MainActivity : AppCompatActivity() {
                             "Failed to register: $exception",
                             Toast.LENGTH_LONG
                         ).show()
+                        AlertDialog.Builder(this)
+                            .setTitle("Oops!")
+                            .setMessage("We couldn't match your gmail address & password with an existing google account. " +
+                                    "Please check your information and try again!")
+                            .setPositiveButton("Got It!") { dialog, which ->
+                                // User pressed OK
+                            }
+                            .show()
                     }
                 }
 
@@ -122,6 +169,10 @@ class MainActivity : AppCompatActivity() {
 
 
         }
+
+
+
+
 
         // This is similar to the TextWatcher -- setOnClickListener takes a View.OnClickListener
         // as a parameter, which is an **interface with only one method**, so in this special case
@@ -155,13 +206,45 @@ class MainActivity : AppCompatActivity() {
                         "Failed to login: $exception",
                         Toast.LENGTH_LONG
                     ).show()
+                    AlertDialog.Builder(this)
+                        .setTitle("Oops!")
+                        .setMessage("Unfortunately there was an error with your Log In! Please remember to sign up" +
+                                " before attempting to log in or check your spelling!")
+                        .setPositiveButton("Got It!") { dialog, which ->
+                            // User pressed OK
+                        }
+                        .show()
                 }
             }
 
 
         }
+
+
+
+    }
+    fun saveData()
+    {
+        bool = true
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        sharedPref.edit().putString("SAVED_DESTINATION", username.text.toString()).apply()
+        sharedPref.edit().putString("SAVED_DESTINATION", password.text.toString()).apply()
+        sharedPref.edit().putBoolean("SAVED_BOOLEAN", bool).apply()
+        Log.d("MainActivity", "Username and Password Saved!")
+    }
+    fun getData() {
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        val saved = sharedPref.getString("SAVED_DESTINATION", "")
+        if (saved.isNotEmpty()) {
+            Toast.makeText(this, "Saved credentials!", Toast.LENGTH_LONG).show()
+        }
     }
 
+}
+
+
+
+/*
     override fun onStart() {
         super.onStart()
         Log.d("MainActivity", "onStart called")
@@ -187,3 +270,6 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "onDestroy called")
     }
 }
+*/
+
+
