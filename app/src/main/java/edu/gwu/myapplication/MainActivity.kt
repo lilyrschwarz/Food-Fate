@@ -15,6 +15,15 @@ import edu.gwu.myapplication.R
 import android.app.AlertDialog
 import android.widget.*
 import android.content.Context
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
+import android.location.Address
+import android.os.Build
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
+import edu.gwu.myapplication.PizzaActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -81,6 +90,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        /**notifications**/
+        createNotificationChannel()
+
         firebaseAuth = FirebaseAuth.getInstance()
 
         signUp = findViewById(R.id.signUp)
@@ -123,8 +136,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-
         signUp.setOnClickListener {
             val inputtedUsername: String = username.text.toString().trim()
             val inputtedPassword: String = password.text.toString().trim()
@@ -146,6 +157,10 @@ class MainActivity : AppCompatActivity() {
                             "Registered as: ${currentUser!!.email}",
                             Toast.LENGTH_LONG
                         ).show()
+
+                        /**notification**/
+                        showNewUserNotification()
+
                     } else {
                         val exception = task.exception
                         Toast.makeText(
@@ -169,7 +184,6 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-
 
 
 
@@ -237,6 +251,56 @@ class MainActivity : AppCompatActivity() {
         val saved = sharedPref.getString("SAVED_DESTINATION", "")
         if (saved.isNotEmpty()) {
             Toast.makeText(this, "Saved credentials!", Toast.LENGTH_LONG).show()
+        }
+    }
+    private fun showNewUserNotification()
+    {
+        //val address = Address(Locale.ENGLISH)
+        //address.adminArea = "Virginia"
+        //address.latitude = 38.8950151
+        //address.longitude = -77.0732913
+
+        /**skip the cooking? just order pizza!**/
+        val intent: Intent = Intent(this, PizzaActivity::class.java)
+        startActivity(intent)
+
+
+        val pendingIntentBuilder = TaskStackBuilder.create(this)
+        pendingIntentBuilder.addNextIntentWithParentStack(intent)
+
+        val pendingIntent = pendingIntentBuilder.getPendingIntent(
+            0,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val mBuilder = NotificationCompat.Builder(this, "default")
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle("Food Fate")
+            .setContentText("Welcome to Food Fate!")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("To get started, register and login to the app with a valid GMail account." +
+                        " Enter in 3 ingredients of your choice and start cooking! If you're not the cooking" +
+                        " type, feel free to just order some Domino's pizza instead!"))
+            .setContentIntent(pendingIntent)
+            .addAction(0, "Order Pizza", pendingIntent)
+
+        NotificationManagerCompat.from(this).notify(0, mBuilder.build())
+
+    }
+
+    private fun createNotificationChannel() {
+        // Needed for Android Oreo and higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Default Notifications"
+            val descriptionText = "The app's default notification set"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("default", name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 

@@ -1,11 +1,12 @@
 package edu.gwu.myapplication
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Button
-import edu.gwu.myapplication.ui.main.MainActivity
+import android.net.Uri
 
 class PizzaActivity : AppCompatActivity() {
 
@@ -16,13 +17,20 @@ class PizzaActivity : AppCompatActivity() {
         setContentView(R.layout.pizza)
         orderButton = findViewById(R.id.orderbutton)
 
+        AlertDialog.Builder(this)
+            .setTitle("Didn't Like What You Made?")
+            .setMessage("Order Domino's instead!!")
+            .setPositiveButton("How convenient!") { dialog, which ->
+                // User pressed OK
+            }
+            .show()
+
+        //explicit intent to launch Domino's website to order online
         orderButton.setOnClickListener {
             Log.d("PizzaActivity", "Order Clicked")
-            /*
-            Place holder until explicit intent is implemented
-             */
-            val intent: Intent = Intent(this, MainActivity::class.java)
+            intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.dominos.com/en/about-pizza/food-online/"))
             startActivity(intent)
+
+        }
         }
     }
-}
