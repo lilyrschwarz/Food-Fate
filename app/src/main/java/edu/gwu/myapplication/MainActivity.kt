@@ -19,11 +19,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
-import android.location.Address
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import edu.gwu.myapplication.PizzaActivity
+import android.app.Activity
+import android.app.AlarmManager
+import edu.gwu.myapplication.MyNotificationPublisher
+import java.util.*
+import android.os.SystemClock
 
 
 class MainActivity : AppCompatActivity() {
@@ -105,15 +109,12 @@ class MainActivity : AppCompatActivity() {
 
         Log.d("MainActivity", "onCreate called")
 
-        AlertDialog.Builder(this)
-            .setTitle("Welcome")
-            .setMessage("Welcome to Food Fate! If you are a new user, please enter a valid email address " +
-                    "and password and select the 'Sign Up' button. If you already have an existing Food Fate " +
-                    "account, simply enter your credentials and select the 'Log In' button. Happy recipe finding!")
-            .setPositiveButton("Thanks!") { dialog, which ->
-                // User pressed OK
-            }
-            .show()
+        /**optimization: have shared preferences remember when it is a fux for welcome notification**/
+        showNewUserNotification()
+
+        //set to 1 minute for testing purposes
+        scheduleNotification(this,  60000, 0)
+
 
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
@@ -157,9 +158,6 @@ class MainActivity : AppCompatActivity() {
                             "Registered as: ${currentUser!!.email}",
                             Toast.LENGTH_LONG
                         ).show()
-
-                        /**notification**/
-                        showNewUserNotification()
 
                     } else {
                         val exception = task.exception
@@ -253,18 +251,13 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Saved credentials!", Toast.LENGTH_LONG).show()
         }
     }
+
+    /**Optimization Goal: create a separate class for notifications management**/
     private fun showNewUserNotification()
     {
-        //val address = Address(Locale.ENGLISH)
-        //address.adminArea = "Virginia"
-        //address.latitude = 38.8950151
-        //address.longitude = -77.0732913
 
         /**skip the cooking? just order pizza!**/
         val intent: Intent = Intent(this, PizzaActivity::class.java)
-        startActivity(intent)
-
-
         val pendingIntentBuilder = TaskStackBuilder.create(this)
         pendingIntentBuilder.addNextIntentWithParentStack(intent)
 
@@ -275,8 +268,9 @@ class MainActivity : AppCompatActivity() {
 
         val mBuilder = NotificationCompat.Builder(this, "default")
             .setSmallIcon(R.mipmap.ic_launcher_round)
-            .setContentTitle("Food Fate")
-            .setContentText("Welcome to Food Fate!")
+            .setContentTitle("Welcome to Food Fate")
+            .setContentText("Tutorial 1/3")
+            .setProgress(100, 33, false)
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText("To get started, register and login to the app with a valid GMail account." +
                         " Enter in 3 ingredients of your choice and start cooking! If you're not the cooking" +
@@ -302,6 +296,34 @@ class MainActivity : AppCompatActivity() {
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+    /**much of this section was guided by the following article regarding how to schedule notifications: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android**/
+    private fun scheduleNotification(context:Context, delay:Long, notificationId:Int) {
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+        val mBuilder = NotificationCompat.Builder(this, "default")
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle("Food Fate")
+            .setContentText("We Miss You!")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("Log back into Food Fate to start finding recipes!"))
+            .setContentIntent(pendingIntent)
+            .addAction(0, "Go to Food Fate", pendingIntent)
+
+        val activity = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        mBuilder.setContentIntent(activity)
+
+        val notification = mBuilder.build()
+        
+        val notificationIntent = Intent(context, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification)
+
+        val totalTime = SystemClock.elapsedRealtime() + delay
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, totalTime, pendingIntent)
     }
 
 }
