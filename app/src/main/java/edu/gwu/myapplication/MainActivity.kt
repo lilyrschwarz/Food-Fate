@@ -15,6 +15,19 @@ import edu.gwu.myapplication.R
 import android.app.AlertDialog
 import android.widget.*
 import android.content.Context
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
+import android.os.Build
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationManagerCompat
+import edu.gwu.myapplication.PizzaActivity
+import android.app.Activity
+import android.app.AlarmManager
+import edu.gwu.myapplication.MyNotificationPublisher
+import java.util.*
+import android.os.SystemClock
 
 
 class MainActivity : AppCompatActivity() {
@@ -81,6 +94,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        /**notifications**/
+        createNotificationChannel()
+
         firebaseAuth = FirebaseAuth.getInstance()
 
         signUp = findViewById(R.id.signUp)
@@ -92,15 +109,12 @@ class MainActivity : AppCompatActivity() {
 
         Log.d("MainActivity", "onCreate called")
 
-        AlertDialog.Builder(this)
-            .setTitle("Welcome")
-            .setMessage("Welcome to Food Fate! If you are a new user, please enter a valid email address " +
-                    "and password and select the 'Sign Up' button. If you already have an existing Food Fate " +
-                    "account, simply enter your credentials and select the 'Log In' button. Happy recipe finding!")
-            .setPositiveButton("Thanks!") { dialog, which ->
-                // User pressed OK
-            }
-            .show()
+        /**optimization: have shared preferences remember when it is a fux for welcome notification**/
+        showNewUserNotification()
+
+        //set to 1 minute for testing purposes
+        scheduleNotification(this,  60000, 0)
+
 
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
@@ -121,8 +135,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-
-
 
 
         signUp.setOnClickListener {
@@ -146,6 +158,7 @@ class MainActivity : AppCompatActivity() {
                             "Registered as: ${currentUser!!.email}",
                             Toast.LENGTH_LONG
                         ).show()
+
                     } else {
                         val exception = task.exception
                         Toast.makeText(
@@ -169,7 +182,6 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-
 
 
 
@@ -238,6 +250,89 @@ class MainActivity : AppCompatActivity() {
         if (saved.isNotEmpty()) {
             Toast.makeText(this, "Saved credentials!", Toast.LENGTH_LONG).show()
         }
+    }
+
+    /**Optimization Goal: create a separate class for notifications management**/
+    private fun showNewUserNotification()
+    {
+
+        /**skip the cooking? just order pizza!**/
+        val intent: Intent = Intent(this, PizzaActivity::class.java)
+        val pendingIntentBuilder = TaskStackBuilder.create(this)
+        pendingIntentBuilder.addNextIntentWithParentStack(intent)
+
+        val pendingIntent = pendingIntentBuilder.getPendingIntent(
+            0,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val mBuilder = NotificationCompat.Builder(this, "default")
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle("Welcome to Food Fate")
+            .setContentText("Tutorial 1/3")
+            .setProgress(100, 33, false)
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("To get started, register and login to the app with a valid GMail account." +
+                        " Enter in 3 ingredients of your choice and start cooking! If you're not the cooking" +
+                        " type, feel free to just order some Domino's pizza instead!"))
+            .setContentIntent(pendingIntent)
+            .addAction(0, "Order Pizza", pendingIntent)
+
+        NotificationManagerCompat.from(this).notify(0, mBuilder.build())
+
+    }
+
+    private fun createNotificationChannel() {
+        // Needed for Android Oreo and higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Default Notifications"
+            val descriptionText = "The app's default notification set"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("default", name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+    /**much of this section was guided by the following article regarding how to schedule notifications: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
+     * as well as with help from Nick via slack.
+     * LIMITATION NOTE: must be run on an android less than 8.0**/
+    private fun scheduleNotification(context:Context, delay:Long, notificationId:Int) {
+
+
+
+        // Building the notification that will be shown after the alarm expires
+        val builder = NotificationCompat.Builder(this, "default")
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle("Food Fate")
+            .setContentText("We Miss You!")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("Log back into Food Fate to start finding recipes!"))
+
+        // Tapping on the notification will launch the 1st activity
+        val launchIntent = Intent(this, MainActivity::class.java)
+        val activityIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        builder.setContentIntent(activityIntent)
+        builder.addAction(0, "Go to Food Fate", activityIntent)
+
+        val notification = builder.build()
+
+        // ------------------------------------------------
+
+        // Now, build the intent that will be fired by the AlarmManager
+        // e.g. this intent will trigger "wake up" your BroadcastReceiver, which will then show the previous
+        // notification
+        val notificationIntent = Intent(context, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification)
+
+        val alarmIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        val totalTime = SystemClock.elapsedRealtime() + delay
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, totalTime, alarmIntent)
     }
 
 }
