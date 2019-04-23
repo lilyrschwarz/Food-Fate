@@ -297,33 +297,42 @@ class MainActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(channel)
         }
     }
-    /**much of this section was guided by the following article regarding how to schedule notifications: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android**/
+    /**much of this section was guided by the following article regarding how to schedule notifications: https://stackoverflow.com/questions/36902667/how-to-schedule-notification-in-android
+     * as well as with help from Nick via slack.
+     * LIMITATION NOTE: must be run on an android less than 8.0**/
     private fun scheduleNotification(context:Context, delay:Long, notificationId:Int) {
 
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
-        val mBuilder = NotificationCompat.Builder(this, "default")
+
+        // Building the notification that will be shown after the alarm expires
+        val builder = NotificationCompat.Builder(this, "default")
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle("Food Fate")
             .setContentText("We Miss You!")
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText("Log back into Food Fate to start finding recipes!"))
-            .setContentIntent(pendingIntent)
-            .addAction(0, "Go to Food Fate", pendingIntent)
 
-        val activity = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-        mBuilder.setContentIntent(activity)
+        // Tapping on the notification will launch the 1st activity
+        val launchIntent = Intent(this, MainActivity::class.java)
+        val activityIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+        builder.setContentIntent(activityIntent)
+        builder.addAction(0, "Go to Food Fate", activityIntent)
 
-        val notification = mBuilder.build()
-        
+        val notification = builder.build()
+
+        // ------------------------------------------------
+
+        // Now, build the intent that will be fired by the AlarmManager
+        // e.g. this intent will trigger "wake up" your BroadcastReceiver, which will then show the previous
+        // notification
         val notificationIntent = Intent(context, MyNotificationPublisher::class.java)
         notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, notificationId)
         notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification)
 
+        val alarmIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         val totalTime = SystemClock.elapsedRealtime() + delay
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, totalTime, pendingIntent)
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, totalTime, alarmIntent)
     }
 
 }
