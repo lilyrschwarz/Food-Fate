@@ -12,4 +12,6 @@
     <string name="pizza_button">Order Pizza</string>
     <string name="order_button">Order</string>
     <string name="login_button">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="change_lang">Change Language</string>
 </resources>
