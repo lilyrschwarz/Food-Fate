@@ -25,9 +25,12 @@ import android.support.v4.app.NotificationManagerCompat
 import edu.gwu.myapplication.PizzaActivity
 import android.app.Activity
 import android.app.AlarmManager
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import edu.gwu.myapplication.MyNotificationPublisher
 import java.util.*
 import android.os.SystemClock
+import android.view.View
 
 
 class MainActivity : AppCompatActivity() {
@@ -59,6 +62,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var checkedBox: CheckBox
 
     var bool: Boolean = false
+
+    //language button
+    private lateinit var languageButton : Button
 
 
 
@@ -94,6 +100,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        /**language change option**/
+        languageButton = findViewById(R.id.mChangeLang) // look back and fix
+
+        languageButton.setOnClickListener{
+            showChangeLang()
+        }
+
 
         /**notifications**/
         createNotificationChannel()
@@ -235,6 +249,47 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+    /** function that has a dialog box to select language box & call the language change**/
+    private fun showChangeLang(){
+
+        val listItems = arrayOf("English", "中文")
+
+        val mBuilder = AlertDialog.Builder(this)
+        mBuilder.setTitle("Choose Language")
+        mBuilder.setSingleChoiceItems(listItems, -1){ dialog, which ->
+            if (which == 0){
+                setLocate("en")
+                recreate()
+            }
+            else if (which == 1){
+                setLocate("zh")
+                recreate()
+            }
+            dialog.dismiss()
+
+        }
+
+        val mDialog = mBuilder.create()
+        mDialog.show()
+
+    }
+
+    /**assistance with code from a helpful youtube tutorial: https://www.youtube.com/watch?v=xxPzi2h0Vvc **/
+    /** setLocate function for changing language**/
+    private fun setLocate(Lang: String) {
+        val locale = Locale(Lang)
+        Locale.setDefault(locale)
+        val config= Configuration()
+        config.locale =locale
+        baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics)
+
+        val editor = getSharedPreferences("settings", Context.MODE_PRIVATE).edit()
+        editor.putString("My_Lang", Lang)
+        editor.apply()
+
+    }
+
     fun saveData()
     {
         bool = true
