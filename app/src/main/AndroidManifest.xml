@@ -10,21 +10,34 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             >
-        //added receiver to let program now myNotificationPublisher exists (help from Nick via Slack)
-        <receiver android:name=".MyNotificationPublisher" />
+        <receiver android:name=".NotificationPublisher" />
+
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".IngredientsActivity">
 
-        </activity>
-        <activity android:name=".RecipesActivity">
-
-        </activity>
         <activity android:name=".PizzaActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.ShowLink">
+        </activity>
+
+        <activity
+                android:label="@string/app_title"
+                android:name=".activity.RecipeList">
+        </activity>
+
+        <activity
+                android:label="@string/app_title"
+                android:theme="@style/AppTheme"
+                android:name=".activity.RecipeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
