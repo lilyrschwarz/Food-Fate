@@ -7,10 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
-import edu.gwu.myapplication.IngredientsActivity
 import edu.gwu.myapplication.R
 import android.app.AlertDialog
 import android.widget.*
@@ -23,27 +20,15 @@ import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import edu.gwu.myapplication.PizzaActivity
-import android.app.Activity
 import android.app.AlarmManager
-import android.content.SharedPreferences
 import android.content.res.Configuration
-import edu.gwu.myapplication.MyNotificationPublisher
+import edu.gwu.myapplication.NotificationPublisher
 import java.util.*
 import android.os.SystemClock
-import android.view.View
+import edu.gwu.myapplication.activity.RecipeActivity
 
 
 class MainActivity : AppCompatActivity() {
-
-    /*
-    * These variables are "lateinit" because can't actually assign a value to them until
-    * onCreate() is called (e.g. we are promising to the Kotlin compiler that these will be
-    * "initialized later").
-    *
-    * Alternative is to make them nullable and set them equal to null, but that's not as nice to
-    * work with.
-    *   private var username: EditText? = null
-    */
 
     private lateinit var username: EditText
 
@@ -57,8 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var firebaseAuth: FirebaseAuth
 
-    private lateinit var remember: CheckBox
-
     private lateinit var checkedBox: CheckBox
 
     var bool: Boolean = false
@@ -66,32 +49,17 @@ class MainActivity : AppCompatActivity() {
     //language button
     private lateinit var languageButton : Button
 
-
-
-
-
-
-
-    /**
-     * We're creating an "anonymous class" here (e.g. we're creating a class which implements
-     * TextWatcher, but not creating an explicit class).
-     *
-     * object : TextWatcher == "creating a new object which implements TextWatcher"
-     */
+    /**textWatcher method
+     * username & password text boxes**/
     private val textWatcher: TextWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            // We're calling .getText() here, but in Kotlin you can omit the "get" or "set"
-            // on a getter / setter and "pretend" you're using an actual variable.
-            //      username.getText() == username.text
             val inputtedUsername: String = username.text.toString().trim()
             val inputtedPassword: String = password.text.toString().trim()
             val enableButton: Boolean = inputtedUsername.isNotEmpty() && inputtedPassword.isNotEmpty()
-
-            // Like above, this is really doing login.setEnabled(enableButton) under the hood
             login.isEnabled = enableButton
         }
 
@@ -99,7 +67,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        Log.d("MainActivity", "onCreate called")
+        setContentView(R.layout.main_activity)
 
         /**language change option**/
         languageButton = findViewById(R.id.mChangeLang) // look back and fix
@@ -108,27 +77,17 @@ class MainActivity : AppCompatActivity() {
             showChangeLang()
         }
 
-
         /**notifications**/
         createNotificationChannel()
-
-        firebaseAuth = FirebaseAuth.getInstance()
-
-        signUp = findViewById(R.id.signUp)
-
-        checkedBox = findViewById(R.id.remember);
-
-
-
-
-        Log.d("MainActivity", "onCreate called")
-
-        /**optimization: have shared preferences remember when it is a fux for welcome notification**/
         showNewUserNotification()
-
         //set to 1 minute for testing purposes
         scheduleNotification(this,  60000, 0)
 
+        /**firebase implementation for signUp feature**/
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        signUp = findViewById(R.id.signUp)
+        checkedBox = findViewById(R.id.remember)
 
         username = findViewById(R.id.username)
         password = findViewById(R.id.password)
@@ -138,8 +97,7 @@ class MainActivity : AppCompatActivity() {
         username.addTextChangedListener(textWatcher)
         password.addTextChangedListener(textWatcher)
 
-
-        //when Check Box enabled, the destination entered is saved
+        //saves login info
         checkedBox.setOnCheckedChangeListener { buttonView, isChecked ->
             Log.d("MainActivity", "Check Box Clicked")
             getData()
@@ -164,8 +122,7 @@ class MainActivity : AppCompatActivity() {
                     inputtedPassword
                 ).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        // If Sign Up is successful, Firebase automatically logs
-                        // in as that user too (e.g. currentUser is set)
+                        //fireBase successful case
                         val currentUser: FirebaseUser? = firebaseAuth.currentUser
                         Toast.makeText(
                             this,
@@ -182,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                         AlertDialog.Builder(this)
                             .setTitle("Oops!")
-                            .setMessage("We couldn't match your gmail address & password with an existing google account. " +
+                            .setMessage("We couldn't match your Gmail address & password with an existing google account. " +
                                     "Please check your information and try again!")
                             .setPositiveButton("Got It!") { dialog, which ->
                                 // User pressed OK
@@ -197,13 +154,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-
-
-
-        // This is similar to the TextWatcher -- setOnClickListener takes a View.OnClickListener
-        // as a parameter, which is an **interface with only one method**, so in this special case
-        // you can just use a lambda (e.g. just open brances) instead of doing
-        //      object : View.OnClickListener { ... }
         login.setOnClickListener {
             val inputtedUsername: String = username.text.toString().trim()
             val inputtedPassword: String = password.text.toString().trim()
@@ -219,11 +169,8 @@ class MainActivity : AppCompatActivity() {
                         "Logged in as: ${currentUser!!.email}",
                         Toast.LENGTH_LONG
                     ).show()
-
-                    // User logged in, advance to the next screen
-
-                    //use this for when i actually have an intent
-                   val intent: Intent = Intent(this, IngredientsActivity::class.java)
+                    //launches RecipeActivity after login
+                   val intent: Intent = Intent(this, RecipeActivity::class.java)
                    startActivity(intent)
                 } else {
                     val exception = task.exception
@@ -290,6 +237,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //save & get data for sharedPreferences
     fun saveData()
     {
         bool = true
@@ -306,12 +254,9 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Saved credentials!", Toast.LENGTH_LONG).show()
         }
     }
-
-    /**Optimization Goal: create a separate class for notifications management**/
+    /**start of notifications tutorial**/
     private fun showNewUserNotification()
     {
-
-        /**skip the cooking? just order pizza!**/
         val intent: Intent = Intent(this, PizzaActivity::class.java)
         val pendingIntentBuilder = TaskStackBuilder.create(this)
         pendingIntentBuilder.addNextIntentWithParentStack(intent)
@@ -357,8 +302,6 @@ class MainActivity : AppCompatActivity() {
      * LIMITATION NOTE: must be run on an android less than 8.0**/
     private fun scheduleNotification(context:Context, delay:Long, notificationId:Int) {
 
-
-
         // Building the notification that will be shown after the alarm expires
         val builder = NotificationCompat.Builder(this, "default")
             .setSmallIcon(R.mipmap.ic_launcher_round)
@@ -368,21 +311,19 @@ class MainActivity : AppCompatActivity() {
                 .bigText("Log back into Food Fate to start finding recipes!"))
 
         // Tapping on the notification will launch the 1st activity
-        val launchIntent = Intent(this, MainActivity::class.java)
+        val launchIntent = Intent(this, RecipeActivity::class.java)
         val activityIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         builder.setContentIntent(activityIntent)
         builder.addAction(0, "Go to Food Fate", activityIntent)
 
         val notification = builder.build()
 
-        // ------------------------------------------------
-
         // Now, build the intent that will be fired by the AlarmManager
         // e.g. this intent will trigger "wake up" your BroadcastReceiver, which will then show the previous
         // notification
-        val notificationIntent = Intent(context, MyNotificationPublisher::class.java)
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, notificationId)
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification)
+        val notificationIntent = Intent(context, NotificationPublisher::class.java)
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification)
 
         val alarmIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         val totalTime = SystemClock.elapsedRealtime() + delay

@@ -68,6 +68,12 @@ dependencies {
     //notification implementations
     implementation 'com.android.support:support-compat:28.0.0'
 
+    //networking
+    implementation 'com.dubsmash.volley:library:2.0.1'
+
+    //photo library
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
 
 }
 

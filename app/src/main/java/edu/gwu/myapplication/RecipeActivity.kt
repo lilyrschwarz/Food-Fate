@@ -1,52 +1,56 @@
-package edu.gwu.myapplication
+package edu.gwu.myapplication.activity
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.widget.Button
-import android.net.Uri
 import android.os.Build
+import android.support.v7.app.AppCompatActivity
+import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
+import edu.gwu.myapplication.R
+import kotlinx.android.synthetic.main.recipe_activity.*
 
-class PizzaActivity : AppCompatActivity() {
+class RecipeActivity : AppCompatActivity() {
 
-    private lateinit var orderButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.pizza)
-        orderButton = findViewById(R.id.orderbutton)
+        setContentView(R.layout.recipe_activity)
 
         createNotificationChannel()
 
-        //make fux
         showNewNotification()
 
-        //explicit intent to launch Domino's website to order online
-        orderButton.setOnClickListener {
-            Log.d("PizzaActivity", "Order Clicked")
-            intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.dominos.com/en/about-pizza/food-online/"))
+        /**interface to enter the three ingredients**/
+        searchButton.setOnClickListener {
+
+            var intent = Intent(this, RecipeList::class.java)
+            var ingredient1 = Ingredient1.text.toString().trim()
+            var ingredient2 = Ingredient2.text.toString().trim()
+            var ingredient3 = Ingredient2.text.toString().trim()
+
+            intent.putExtra("ingredient1", ingredient1)
+            intent.putExtra("ingredient2", ingredient2)
+            intent.putExtra("ingredient3", ingredient3)
             startActivity(intent)
 
         }
-        }
+    }
+
+
     private fun showNewNotification()
     {
 
         val mBuilder = NotificationCompat.Builder(this, "default")
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle("Welcome to Food Fate")
-            .setContentText("Tutorial 3/3")
-            .setProgress(100, 100, false)
+            .setContentText("Tutorial 2/3")
+            .setProgress(100, 66, false)
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText("Cooking isn't for everybody... Luckily delivery exists! Order your favorite pizza"
-                    + " from our Order Activity."))
+                    .bigText("Enter 3 Ingredients and find your new favorite recipe!"))
 
         NotificationManagerCompat.from(this).notify(0, mBuilder.build())
 
@@ -66,4 +70,4 @@ class PizzaActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(channel)
         }
     }
-    }
+}
