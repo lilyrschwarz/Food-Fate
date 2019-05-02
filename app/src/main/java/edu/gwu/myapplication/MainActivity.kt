@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
         showNewUserNotification()
         //set to 1 minute for testing purposes
-        scheduleNotification(this,  60000, 0)
+        scheduleNotification(this,  30000, 0)
 
         /**firebase implementation for signUp feature**/
 
