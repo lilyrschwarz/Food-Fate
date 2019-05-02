@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Food Fate (CN)</string>
+    <string name="app_title">Food Fate (CN)</string>
     <string name="login">登录</string>
     <string name="username">用户名</string>
     <string name="password">密码</string>
@@ -16,4 +17,13 @@
     <string name="sign_up">注册</string>
     <string name="API_KEY">a60e697bdbae8174ac5ae84527c5da2e</string>
     <string name="change_lang">改变语言</string>
+
+
+    //recipe stuff
+    <string name="title">请输入3种成分</string>
+    <string name="search">搜索食谱！</string>
+    <string name= "ingredient1">成分1</string>
+    <string name= "ingredient2">成分2</string>
+    <string name= "ingredient3">成分3</string>
+    <string name="Ingredients">配料：</string>
 </resources>

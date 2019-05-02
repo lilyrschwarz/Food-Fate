@@ -1,9 +1,9 @@
 package edu.gwu.myapplication
 
-import java.io.Serializable
 
-data class RecipeData(
-    val title: String,
-    val description: String,
-    val iconUrl: String
-) : Serializable
+class RecipeData {
+    var title: String? = null
+    var link: String? = null
+    var ingredients: String? = null
+    var thumbnail: String? = null
+}

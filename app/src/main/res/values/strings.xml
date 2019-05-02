@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Food Fate</string>
+    <string name="app_title">Food Fate</string>
     <string name="login">Login</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -14,4 +15,12 @@
     <string name="login_button">Login</string>
     <string name="sign_up">Sign Up</string>
     <string name="change_lang">Change Language</string>
+
+    //new recipe stuff
+    <string name="title">Please Enter 3 Ingredients</string>
+    <string name= "search">Search for Recipes!</string>
+    <string name= "ingredient1">Ingredient 1</string>
+    <string name= "ingredient2">Ingredient 2</string>
+    <string name= "ingredient3">Ingredient 3</string>
+    <string name="Ingredients">Ingredients:</string>
 </resources>
